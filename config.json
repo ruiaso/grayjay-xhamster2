@@ -4,7 +4,7 @@
   "description": "XHamster plugin for GrayJay",
   "author": "ruiaso",
   "authorUrl": "https://github.com/ruiaso",
-  "sourceUrl": "https://raw.githubusercontent.com/ruiaso/grayjay-xhamster/main/config.json",
+  "sourceUrl": "https://raw.githubusercontent.com/ruiaso/grayjay-xhamster2/refs/heads/main/config.json",
   "scriptUrl": "./dist/XHamsterScript.js"
   "repositoryUrl": "https://github.com/ruiaso/grayjay-xhamster",
   "version": 3,
