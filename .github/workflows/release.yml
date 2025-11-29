@@ -1,0 +1,106 @@
+name: Release Plugin
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version number (e.g., 2, 3, 4)"
+        required: true
+        type: number
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version from tag or input
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "Triggered by tag push: v$VERSION"
+          else
+            VERSION=${{ github.event.inputs.version }}
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "Triggered manually with version: $VERSION"
+          fi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Update version in config.json (manual dispatch only)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          jq '.version = ${{ steps.version.outputs.version }}' config.json > config.tmp.json
+          mv config.tmp.json config.json
+          echo "Updated version to ${{ steps.version.outputs.version }}"
+
+      - name: Build plugin
+        run: npm run build
+
+      - name: Verify build output
+        run: |
+          ls -lh dist/
+          echo "Script size:"
+          wc -c dist/script.js
+          echo "Config size:"
+          wc -c dist/config.json
+
+      - name: Sign plugin
+        run: npm run sign
+
+      - name: Commit version bump (manual dispatch only)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add config.json
+          git commit -m "chore: Bump version to ${{ steps.version.outputs.version }}"
+          git tag v${{ steps.version.outputs.version }}
+          git push && git push --tags
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Release v${{ steps.version.outputs.version }}
+          draft: false
+          prerelease: false
+          files: |
+            dist/config.json
+            dist/script.js
+          body: |
+            ## Installation
+
+            **Quick Install:**
+            ```
+            grayjay://plugin/https://github.com/${{ github.repository }}/releases/latest/download/config.json
+            ```
+
+            Or scan the QR code below.
+
+            ![QR Code](https://github.com/${{ github.repository }}/raw/main/assets/qrcode.png)
+
+            ## Changes in v${{ steps.version.outputs.version }}
+
+            _See commit history for details_
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
