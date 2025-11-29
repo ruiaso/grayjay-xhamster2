@@ -5,7 +5,7 @@
   "author": "ruiaso",
   "authorUrl": "https://github.com/ruiaso",
   "sourceUrl": "https://raw.githubusercontent.com/ruiaso/grayjay-xhamster/main/config.json",
-  "scriptUrl": "./extractor.js",
+  "scriptUrl": "./dist/XHamsterScript.js"
   "repositoryUrl": "https://github.com/ruiaso/grayjay-xhamster",
   "version": 3,
   "iconUrl": "https://xhamster.com/favicon.ico",
