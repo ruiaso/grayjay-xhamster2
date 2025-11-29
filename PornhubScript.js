@@ -1,8 +1,8 @@
-const URL_BASE = "https://www.pornhub.com";
+const URL_BASE = "https://xhamster.com/";
 
 const PLATFORM_CLAIMTYPE = 3;
 
-const PLATFORM = "PornHub";
+const PLATFORM = "xhamster";
 
 var config = {};
 var state = {
@@ -179,8 +179,8 @@ source.searchChannels = function (query) {
 
 
 source.isChannelUrl = function (url) {
-	return (url.includes(".pornhub.com/model/") || url.includes(".pornhub.com/channels/") || url.includes(".pornhub.com/pornstar/") ||
-			url.includes("/model/") || url.includes("/channels/") || url.includes("/pornstar/"));
+	return (url.includes(".xhamster.com/creators/") || url.includes(".xhamster.com/channels/") || url.includes(".xhamster.com/pornstars/") ||
+			url.includes("/creators/") || url.includes("/channels/") || url.includes("/pornstars/"));
 };
 
 source.getChannel = function (url) {
@@ -879,7 +879,7 @@ function normalizePornhubUrl(url) {
 
 	// Replace any country-specific subdomain (rt.pornhub.com, de.pornhub.com, etc.) with www.pornhub.com
 	// Also handles urls without subdomain (pornhub.com -> www.pornhub.com)
-	return url.replace(/https?:\/\/([a-z]{2}\.)?pornhub\.com/, "https://www.pornhub.com");
+	return url.replace(/https?:\/\/([a-z]{2}\.)?xhamster\.com/, "https://xhamster.com/");
 }
 
 /**
@@ -1110,7 +1110,7 @@ function getPornstarInfo(url) {
 		var socialLinks = socialLinksSection.querySelectorAll("ul.socialList li a");
 		socialLinks.forEach(function(link) {
 			var href = link.getAttribute("href");
-			if (href && !href.includes("pornhub.com")) {
+			if (href && !href.includes("xhamster.com")) {
 				var linkText = link.querySelector(".socialText");
 				var label = linkText ? linkText.textContent.trim() : "";
 
@@ -1252,7 +1252,7 @@ function getAutocompleteChannelPager(query) {
 				allChannels.push(new PlatformAuthorLink(
 					new PlatformID(PLATFORM, pornstar.slug, config.id),
 					pornstar.name,
-					URL_BASE + "/pornstar/" + pornstar.slug,
+					URL_BASE + "/pornstars/" + pornstar.slug,
 					"", // No avatar in autocomplete API
 					0   // No subscribers in autocomplete API
 				));
@@ -1304,7 +1304,7 @@ function getMultiChannelPager(query, page) {
 
 	// Search channels
 	try {
-		var channelHtml = httpGET(URL_BASE + "/channels/search?channelSearch=" + encodeURIComponent(query) + "&page=" + page, {});
+		var channelHtml = httpGET(URL_BASE + "/channels/" + encodeURIComponent(query) + "&page=" + page, {});
 		var channels = getChannels(channelHtml);
 		allChannels = allChannels.concat(channels.channels);
 		hasMore = hasMore || channels.hasNextPage;
@@ -1342,7 +1342,7 @@ function getPornstarsFromSearch(html) {
 		if (!linkElement) return;
 
 		var url = linkElement.getAttribute("href");
-		if (!url || !url.includes("/pornstar/")) return;
+		if (!url || !url.includes("/pornstars/")) return;
 
 		var imgElement = li.querySelector("img");
 		var avatar = imgElement ? (imgElement.getAttribute("data-src") || imgElement.getAttribute("src") || "") : "";
